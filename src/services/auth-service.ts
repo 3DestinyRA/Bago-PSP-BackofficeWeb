@@ -30,6 +30,7 @@ export class AuthService {
 			const response = await axios.post<ISalesforceApiResponseAuth>(this.authUrl, formData, {
 				headers: {
 					"Content-Type": "application/x-www-form-urlencoded",
+					"Access-Control-Allow-Origin": "http://localhost:3000",
 				},
 			});
 

@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useAuthContext } from "@/auth/hooks";
 import { signInWithEmail } from "@/auth/context/jwt";
 import { Alert, Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { Field, Form } from "@/components/form";
@@ -27,8 +26,6 @@ export const SignInSchema = zod.object({
 export function JwtSignInView() {
 	const router = useRouter();
 
-	const { checkUserSession } = useAuthContext();
-
 	const [errorMsg, setErrorMsg] = useState("");
 
 	const defaultValues = {
@@ -48,12 +45,10 @@ export function JwtSignInView() {
 	const onSubmit = handleSubmit(async (data) => {
 		try {
 			await signInWithEmail({ email: data.email });
-			await checkUserSession?.();
-
-			router.refresh();
+			router.push("/auth/sign-in/verify-email");
 		} catch (error) {
 			console.error("Error signing view", error);
-			setErrorMsg("Email incorrecto");
+			setErrorMsg(error instanceof Error ? error.message : "Email incorrecto");
 		}
 	});
 

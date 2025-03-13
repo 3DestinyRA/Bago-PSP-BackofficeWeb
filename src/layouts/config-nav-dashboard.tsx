@@ -6,35 +6,32 @@ import { paths } from "@/routes/paths";
 
 // ------------------------------------------------------------------------------
 
-const icon = (name: string) => (
-  <SvgColor src={`${CONFIG.site.assetURL}/assets/icons/navbar/${name}.svg`} />
-);
+const icon = (name: string) => <SvgColor src={`${CONFIG.site.assetURL}/assets/icons/${name}.svg`} />;
 
 // ------------------------------------------------------------------------------
 
-const ICONS = {
-  home: icon("ic-home"),
-  rates: icon("ic-rates"),
-  promotions: icon("ic-promotions"),
+export const ICONS = {
+	home: icon("ic-resume"),
+	patients: icon("ic-patients"),
 };
 
 // ------------------------------------------------------------------------------
 
 export type NavDataType = {
-  title: string;
-  path?: string;
-  icon?: React.ReactNode;
+	title: string;
+	path?: string;
+	icon?: string;
 };
 
 export const navData: NavDataType[] = [
-  {
-    title: "Resumen",
-    path: paths.dashboard.root,
-    icon: ICONS.home,
-  },
-  {
-    title: "Listado de Pacientes",
-    path: paths.dashboard.patients.root,
-    icon: ICONS.home,
-  },
+	{
+		title: "Resumen",
+		path: paths.dashboard.root,
+		icon: "resume",
+	},
+	{
+		title: "Listado de Pacientes",
+		path: paths.dashboard.patients.root,
+		icon: "patients",
+	},
 ];

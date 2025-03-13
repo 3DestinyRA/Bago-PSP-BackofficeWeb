@@ -1,7 +1,7 @@
-import { IUser } from "@/types/user";
+import { PatientMapper } from "@/mapper/patient-mapper";
 import { ApiFacade } from "./api-facade";
 import { authService } from "./auth-service";
-
+import { IPatientApi } from "@/types/api/patient-api";
 
 class PatientService {
 	private readonly api: ApiFacade;
@@ -19,7 +19,10 @@ class PatientService {
 
 	async getOperatorByEmail(email: string) {
 		await this.ensureAuthenticated();
-		return this.api.get<IUser>(`/services/apexrest/operador/pacientes/email=${email}&family=REMODULIN`);
+		const response = await this.api.get<IPatientApi>(
+			`/services/apexrest/operador/pacientes/email=${email}&family=REMODULIN`
+		);
+		return PatientMapper.fromApiToDomain(response);
 	}
 }
 

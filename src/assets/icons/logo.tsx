@@ -1,8 +1,13 @@
 import React from "react";
 
-export const LogoIcon = () => {
+type Props = {
+	width?: string;
+	height?: string;
+};
+
+export const LogoIcon = ({ width = "95", height = "115" }: Props) => {
 	return (
-		<svg width="95" height="115" viewBox="0 0 95 115" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg width={width} height={height} viewBox="0 0 95 115" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path
 				d="M37.7825 25.7102C37.7825 32.5783 32.2894 38.1449 25.5147 38.1449C18.7401 38.1449 13.2469 32.5783 13.2469 25.7102C13.2469 18.8422 18.7401 13.2689 25.5147 13.2689C32.2894 13.2689 37.7825 18.8422 37.7825 25.7102Z"
 				fill="#33A5AA"

@@ -1,8 +1,8 @@
 "use client";
 
-import { patientService } from "@/services/patient-service";
+import { patientService } from "@/api/patient-service";
 import { generateToken, setSession } from "./utils";
-import { emailService } from "@/services/email-service";
+import { emailService } from "@/api/email-service";
 import { CONFIG } from "@/config-global";
 
 // ----------------------------------------------------------------------

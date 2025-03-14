@@ -7,7 +7,7 @@ import { AuthContext } from "../auth-context";
 import { setSession, isValidToken, getDecodedToken } from "./utils";
 import { AuthState } from "@/auth/types";
 import { useSetState } from "@/hooks/use-set-state";
-import { patientService } from "@/services/patient-service";
+import { patientService } from "@/api/patient-service";
 
 // ----------------------------------------------------------------------
 

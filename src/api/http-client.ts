@@ -10,8 +10,6 @@ httpClient.interceptors.request.use(
 		const token = await authService.getAccessToken();
 		const instanceUrl = await authService.getInstanceUrl();
 
-		console.log(token, instanceUrl);
-
 		if (token && instanceUrl) {
 			config.baseURL = instanceUrl;
 			config.headers.Authorization = `Bearer ${token}`;

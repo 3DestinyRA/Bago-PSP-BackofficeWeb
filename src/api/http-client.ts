@@ -1,5 +1,5 @@
 import axios from "axios";
-import { authService } from "./auth-service";
+import { login } from "@/actions/auth-service";
 
 export const httpClient = axios.create({
 	timeout: 5000,
@@ -7,14 +7,11 @@ export const httpClient = axios.create({
 
 httpClient.interceptors.request.use(
 	async (config) => {
-		const token = await authService.getAccessToken();
-		const instanceUrl = await authService.getInstanceUrl();
+		const responseLogin = await login();
 
-		if (token && instanceUrl) {
-			config.baseURL = instanceUrl;
-			config.headers.Authorization = `Bearer ${token}`;
-		} else {
-			throw new Error("Ha ocurrido un error en el servidor, intente más tarde");
+		if (responseLogin?.accessToken && responseLogin?.instanceUrl) {
+			config.baseURL = responseLogin.instanceUrl;
+			config.headers.Authorization = `Bearer ${responseLogin.accessToken}`;
 		}
 
 		return config;
@@ -26,9 +23,10 @@ httpClient.interceptors.response.use(
 	(response) => response,
 	async (error) => {
 		if (error.response?.status === 401) {
-			const refreshed = await authService.refreshAccessToken();
+			const refreshed = await login();
 			if (refreshed) {
-				error.config.headers.Authorization = `Bearer ${await authService.getAccessToken()}`;
+				error.config.baseURL = refreshed.instanceUrl;
+				error.config.headers.Authorization = `Bearer ${refreshed.accessToken}`;
 				return axios(error.config);
 			}
 		}

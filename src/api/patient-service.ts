@@ -1,29 +1,22 @@
-import { PatientMapper } from "@/mapper/patient-mapper";
-import { ApiFacade } from "./api-facade";
+"use client";
+
 import { authService } from "./auth-service";
-import { IPatientApi } from "@/types/api/patient-api";
+import { login } from "@/actions/auth-service";
 
 class PatientService {
-	private readonly api: ApiFacade;
-
-	constructor(api: ApiFacade) {
-		this.api = api;
-	}
-
-	private async ensureAuthenticated() {
-		const token = await authService.getAccessToken();
+	async ensureAuthenticated() {
+		const token = authService.getAccessToken();
 		if (!token) {
-			await authService.login();
-		}
-	}
+			const responseLogin = await login();
 
-	async getOperatorByEmail(email: string) {
-		await this.ensureAuthenticated();
-		const response = await this.api.get<IPatientApi>(
-			`/services/apexrest/operador/pacientes/email=${email}&family=REMODULIN`
-		);
-		return PatientMapper.fromApiToDomain(response);
+			if (!responseLogin) {
+				throw new Error("Ha ocurrido un error en el servidor, intente más tarde");
+			} else {
+				authService.setAccessToken(responseLogin.accessToken);
+				authService.setInstanceUrl(responseLogin.instanceUrl);
+			}
+		}
 	}
 }
 
-export const patientService = new PatientService(new ApiFacade());
+export const patientService = new PatientService();

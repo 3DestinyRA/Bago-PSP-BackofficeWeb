@@ -1,9 +1,10 @@
 "use client";
 
-import { patientService } from "@/api/patient-service";
 import { generateToken, setSession } from "./utils";
-import { emailService } from "@/api/email-service";
 import { CONFIG } from "@/config-global";
+import { getOperatorByEmail } from "@/actions/patient-service";
+import { sendEmailOperatorLinking } from "@/actions/email-service";
+import { patientService } from "@/api/patient-service";
 
 // ----------------------------------------------------------------------
 
@@ -16,12 +17,13 @@ export type SignInParams = {
  *************************************** */
 export const signInWithEmail = async ({ email }: SignInParams): Promise<void> => {
 	try {
-		const response = await patientService.getOperatorByEmail(email);
+		await patientService.ensureAuthenticated();
+		const response = await getOperatorByEmail(email);
 
 		if (response?.message === "") {
 			const token = generateToken(email);
 			const link = `${CONFIG.site.basePath}/auth/sign-in/verify-email?token=${token}`;
-			await emailService.sendEmailOperatorLinking(email, link);
+			await sendEmailOperatorLinking(email, link);
 		} else {
 			throw new Error(response?.message);
 		}

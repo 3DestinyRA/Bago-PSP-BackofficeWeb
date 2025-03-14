@@ -7,7 +7,7 @@ import { AuthContext } from "../auth-context";
 import { setSession, isValidToken, getDecodedToken } from "./utils";
 import { AuthState } from "@/auth/types";
 import { useSetState } from "@/hooks/use-set-state";
-import { patientService } from "@/api/patient-service";
+import { getOperatorByEmail } from "@/actions/patient-service";
 
 // ----------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
 
 				const decodedTokenResponse = getDecodedToken(accessToken);
 
-				const userData = await patientService.getOperatorByEmail(decodedTokenResponse?.email as string);
+				const userData = await getOperatorByEmail(decodedTokenResponse?.email as string);
 
 				if (!userData || userData?.message !== "") {
 					setState({ user: null, loading: false });

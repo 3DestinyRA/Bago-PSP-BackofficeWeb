@@ -1,25 +1,35 @@
+"use client";
+
 // ----------------------------------------------------------------------
 
 export function localStorageAvailable() {
-  try {
-    const key = "__some_random_key_you_are_not_going_to_use__";
-    window.localStorage.setItem(key, key);
-    window.localStorage.removeItem(key);
-    return true;
-  } catch (error) {
-    console.log(error);
-    return false;
-  }
+	try {
+		const key = "__some_random_key_you_are_not_going_to_use__";
+		window.localStorage.setItem(key, key);
+		window.localStorage.removeItem(key);
+		return true;
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
 }
 
 export function localStorageGetItem(key: string, defaultValue = "") {
-  const storageAvailable = localStorageAvailable();
+	const storageAvailable = localStorageAvailable();
 
-  let value;
+	let value;
 
-  if (storageAvailable) {
-    value = localStorage.getItem(key) ?? defaultValue;
-  }
+	if (storageAvailable) {
+		value = localStorage.getItem(key) ?? defaultValue;
+	}
 
-  return value;
+	return value;
+}
+
+export function localStorageSetItem(key: string, value: string) {
+	const storageAvailable = localStorageAvailable();
+
+	if (storageAvailable) {
+		localStorage.setItem(key, value);
+	}
 }

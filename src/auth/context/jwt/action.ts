@@ -1,9 +1,8 @@
 "use client";
 
 import { patientService } from "@/services/patient-service";
-import { setSession } from "./utils";
+import { generateToken, setSession } from "./utils";
 import { emailService } from "@/services/email-service";
-import jwt from "jsonwebtoken";
 import { CONFIG } from "@/config-global";
 
 // ----------------------------------------------------------------------
@@ -20,7 +19,7 @@ export const signInWithEmail = async ({ email }: SignInParams): Promise<void> =>
 		const response = await patientService.getOperatorByEmail(email);
 
 		if (response?.message === "") {
-			const token = generateToken(response.identificationNumber);
+			const token = generateToken(email);
 			const link = `${CONFIG.site.basePath}/auth/sign-in/verify-email?token=${token}`;
 			await emailService.sendEmailOperatorLinking(email, link);
 		} else {
@@ -42,8 +41,4 @@ export const signOut = async (): Promise<void> => {
 		console.error("Error al cerrar sesión:", error);
 		throw error;
 	}
-};
-
-export const generateToken = (identificationNumber: string) => {
-	return jwt.sign({ identificationNumber }, process.env.NEXT_PUBLIC_JWT_SECRET_KEY ?? "", { expiresIn: "7d" });
 };

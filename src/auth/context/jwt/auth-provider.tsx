@@ -32,12 +32,17 @@ export function AuthProvider({ children }: Readonly<Props>) {
 
 				const userData = await patientService.getOperatorByEmail(decodedTokenResponse?.email as string);
 
-				setState({
-					user: {
-						...userData,
-					},
-					loading: false,
-				});
+				if (!userData || userData?.message !== "") {
+					setState({ user: null, loading: false });
+					sessionStorage.removeItem(STORAGE_KEY);
+				} else {
+					setState({
+						user: {
+							...userData,
+						},
+						loading: false,
+					});
+				}
 			} else {
 				setState({ user: null, loading: false });
 			}

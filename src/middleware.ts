@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins = ["http://localhost:3000", "https://bago-backoffice-b7e515c2012f.herokuapp.com/"];
 
 const corsOptions = {
 	"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",

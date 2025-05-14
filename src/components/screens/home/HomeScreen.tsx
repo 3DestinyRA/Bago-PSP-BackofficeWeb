@@ -20,11 +20,11 @@ export const HomeScreen = () => {
 	const getTotalDoctors = (patients: IPatient[]) => {
 		const professionals = new Set();
 
-		patients.forEach((patient) => {
-			const flatArrayTreatments = patient.treatments.flat();
+		patients?.forEach((patient) => {
+			const flatArrayTreatments = patient?.treatments?.flat();
 			flatArrayTreatments.forEach((treatment) => {
-				const professional = treatment.professionalAssign;
-				if (professional && professional.trim() !== "") {
+				const professional = treatment?.professionalAssign;
+				if (professional) {
 					professionals.add(professional);
 				}
 			});

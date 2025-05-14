@@ -13,4 +13,5 @@ export interface IPatient {
 	scanners: IScanner[];
 	lastTreatment: ITreatment;
 	lastScanner: IScanner;
+	weightApp: string;
 }

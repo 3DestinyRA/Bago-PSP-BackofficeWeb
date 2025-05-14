@@ -5,4 +5,5 @@ export interface IScanner {
 	remainingCartridge: number;
 	doses: number;
 	identificationNumber: string;
+	date: string;
 }

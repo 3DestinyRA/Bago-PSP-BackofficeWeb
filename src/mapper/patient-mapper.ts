@@ -5,7 +5,6 @@ import { IUser } from "@/types/user";
 
 export class PatientMapper {
 	static fromApiToDomain(patient: IPatientApi): IUser {
-		console.log("patient", patient);
 		return {
 			name: patient.nombre ?? "",
 			lastname: patient.apellido ?? "",
@@ -22,6 +21,7 @@ export class PatientMapper {
 						identificationNumber: item.dni ?? "",
 					})),
 					weight: item.peso ?? "0",
+					weightApp: item.pesoApp ?? "0",
 					operator: item.operadorDesignado ?? "",
 					name: item.nombre ?? "",
 					medicSocial: item.obraSocial ?? "",
@@ -36,6 +36,7 @@ export class PatientMapper {
 							remainingCartridge: item.duracionCartucho ? parseFloat(item.duracionCartucho) : 0,
 							doses: item.dosis ? parseFloat(item.dosis) : 0,
 							identificationNumber: item.DNI ?? "",
+							date: item.fechaHoraEscaneo ?? "",
 						})) ?? [],
 					lastTreatment: this.fromTreatmentToDomain(
 						item.Tratamientos.reduce((prev, current) => {
@@ -74,6 +75,7 @@ export class PatientMapper {
 			remainingCartridge: scanner.duracionCartucho ? parseFloat(scanner.duracionCartucho) : 0,
 			doses: scanner.dosis ? parseFloat(scanner.dosis) : 0,
 			identificationNumber: scanner.DNI ?? "",
+			date: scanner.fechaHoraEscaneo ?? "",
 		};
 	}
 }

@@ -11,12 +11,12 @@ import { SocialMedicalIcon } from "@/assets/icons/patients-items/social-medical-
 import { WeightIcon } from "@/assets/icons/patients-items/weight-icon";
 import { useAuthContext } from "@/auth/hooks";
 import { PatientInfoItem } from "@/components/patient-info-item/patient-info-item";
+import { useTimerRemainingMl } from "@/hooks/useTimingRemaining";
 import { LayoutContent } from "@/layouts/dashboard/layout-content";
 import { IPatient } from "@/types/patient";
-import { calculateRemainingCartridge } from "@/utils/patient-calculators";
 import { Box, Grid2, Typography } from "@mui/material";
 import dayjs from "dayjs";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 type Props = {
 	patientId: string;
@@ -26,6 +26,13 @@ export const PatientDetailScreen = ({ patientId }: Props) => {
 	const { user } = useAuthContext();
 	const [dataPatient, setDataPatient] = useState<IPatient>();
 
+	const { remainingMl, daysAndHours } = useTimerRemainingMl({
+		initialMl: dataPatient?.lastScanner.remainingMl ?? 0,
+		velocity: dataPatient?.lastScanner.infusionVelocity ?? 0,
+		initialPercentageRemainingMl: 0,
+		initialDate: dataPatient?.lastScanner?.date ?? null,
+	});
+
 	useEffect(() => {
 		if (user && patientId) {
 			const patient = user.patients.find((patient) => patient.identificationNumber === patientId);
@@ -34,19 +41,6 @@ export const PatientDetailScreen = ({ patientId }: Props) => {
 			setDataPatient(undefined);
 		}
 	}, [patientId, user]);
-
-	const valueRemainingCartridge = useMemo(() => {
-		if (!dataPatient) return "";
-		const presentation = dataPatient?.lastTreatment?.product
-			? RegExp(/(\d+(\.\d+)?)\s*ML/i).exec(dataPatient.lastTreatment.product)?.[1]
-			: 0;
-		const { dosis, days, hours } = calculateRemainingCartridge(
-			dataPatient.lastScanner.infusionVelocity,
-			presentation ? parseFloat(presentation) : 0,
-			dataPatient.weight ? parseFloat(dataPatient.weight) : 0
-		);
-		return `${dosis} ml - ${days} dias y ${hours} horas`;
-	}, [dataPatient]);
 
 	if (!dataPatient) {
 		return (
@@ -70,7 +64,7 @@ export const PatientDetailScreen = ({ patientId }: Props) => {
 						icon={<RemainingIcon />}
 						backgroundColor="var(--color-primary)"
 						title="Medicación restante"
-						value={valueRemainingCartridge}
+						value={remainingMl === 0 || !remainingMl ? "0 ml" : `${remainingMl.toFixed(3)} ml - ${daysAndHours}`}
 						color="var(--color-white)"
 					/>
 				</Grid2>
@@ -130,7 +124,7 @@ export const PatientDetailScreen = ({ patientId }: Props) => {
 						title="Presentación"
 						value={`${
 							dataPatient?.lastTreatment?.product
-								? RegExp(/(\d+(\.\d+)?)\s*ML/i).exec(dataPatient.lastTreatment.product)?.[1] ?? "-"
+								? RegExp(/(\d+(\.\d+)?)\s*INY/i).exec(dataPatient?.lastTreatment?.product)?.[1] ?? "-"
 								: "-"
 						} ml`}
 					/>
@@ -145,7 +139,11 @@ export const PatientDetailScreen = ({ patientId }: Props) => {
 					<PatientInfoItem
 						icon={<DoctorAccesoryIcon />}
 						title="Médico Tratante"
-						value={dataPatient?.lastTreatment?.professionalAssign ?? "-"}
+						value={
+							Array.isArray(dataPatient?.lastTreatment?.professionalAssign)
+								? dataPatient?.lastTreatment?.professionalAssign.join(", ")
+								: dataPatient?.lastTreatment?.professionalAssign ?? "-"
+						}
 					/>
 				</Grid2>
 				<Grid2
@@ -173,7 +171,7 @@ export const PatientDetailScreen = ({ patientId }: Props) => {
 						md: 4,
 					}}
 				>
-					<PatientInfoItem icon={<WeightIcon />} title="Peso APP" value={`${dataPatient?.weight ?? "-"} kg`} />
+					<PatientInfoItem icon={<WeightIcon />} title="Peso APP" value={`${dataPatient?.weightApp ?? "-"} kg`} />
 				</Grid2>
 			</Grid2>
 		</LayoutContent>

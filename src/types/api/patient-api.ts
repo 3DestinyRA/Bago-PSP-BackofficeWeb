@@ -1,7 +1,7 @@
 export interface ITreatmentApi {
 	tipoBomba: string | null;
 	producto: string | null;
-	medicoTratante: string | null;
+	medicoTratante: string | string[] | null;
 	fechaInicio: string | null;
 	dosis: string | null;
 	dni: string | null;
@@ -33,6 +33,7 @@ export interface IPatientApi {
 				dni: string | null;
 				fechaNacimiento: string | null;
 				Escaneos: IScannerApi[];
+				pesoApp: string | null;
 		  }[]
 		| null;
 }

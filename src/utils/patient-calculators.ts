@@ -1,4 +1,5 @@
 export const calculateRemainingCartridge = (velocity: number, presentation: number, weight: number) => {
+	console.log("calculateRemainingCartridge", velocity, presentation, weight);
 	const CONSTANT_VALUE = 0.00006;
 	if (velocity === 0 || presentation === 0 || weight === 0) return { dosis: 0, days: 0, hours: 0 };
 	const dosis = (velocity * presentation) / (weight * CONSTANT_VALUE);

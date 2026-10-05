@@ -96,6 +96,7 @@ export async function setSession(accessToken: string | null) {
 
 export function getDecodedToken(accessToken: string): {
 	email: string;
+	demo?: boolean;
 } | null {
 	if (!accessToken) {
 		return null;
@@ -110,6 +111,7 @@ export function getDecodedToken(accessToken: string): {
 
 		return {
 			email: decoded.email as string,
+			demo: decoded.demo === true,
 		};
 	} catch (error) {
 		console.error("Error decodificando el token:", error);

@@ -30,6 +30,23 @@ export function AuthProvider({ children }: Readonly<Props>) {
 
 				const decodedTokenResponse = getDecodedToken(accessToken);
 
+				// Login temporal hardcodeado: ese mail no existe como operador en
+				// Salesforce, así que armamos el usuario acá en vez de ir a buscarlo
+				// (si no, la sesión se cerraría sola). Ver /api/auth/demo-login.
+				if (decodedTokenResponse?.demo) {
+					setState({
+						user: {
+							name: "Operador",
+							lastname: "",
+							identificationNumber: "",
+							message: "",
+							patients: [],
+						},
+						loading: false,
+					});
+					return;
+				}
+
 				const userData = await getOperatorByEmail(decodedTokenResponse?.email as string);
 
 				if (!userData || userData?.message !== "") {

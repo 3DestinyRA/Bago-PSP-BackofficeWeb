@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { signInWithEmail } from "@/auth/context/jwt";
+import { useAuthContext } from "@/auth/hooks";
 import { Alert, Button, CircularProgress, Stack, Typography } from "@mui/material";
 import { Field, Form } from "@/components/form";
 import { LogoIcon } from "@/assets/icons/logo";
@@ -15,6 +16,7 @@ import { LogoIcon } from "@/assets/icons/logo";
 export type SignInSchemaType = zod.infer<typeof SignInSchema>;
 
 export const SignInSchema = zod.object({
+	password: zod.string().min(1, { message: "Debe ingresar una clave!" }),
 	email: zod
 		.string()
 		.min(1, { message: "Debe ingresar un email!" })
@@ -26,10 +28,13 @@ export const SignInSchema = zod.object({
 export function JwtSignInView() {
 	const router = useRouter();
 
+	const { checkUserSession } = useAuthContext();
+
 	const [errorMsg, setErrorMsg] = useState("");
 
 	const defaultValues = {
 		email: "",
+		password: "",
 	};
 
 	const methods = useForm<SignInSchemaType>({
@@ -44,7 +49,15 @@ export function JwtSignInView() {
 
 	const onSubmit = handleSubmit(async (data) => {
 		try {
-			await signInWithEmail({ email: data.email });
+			const mode = await signInWithEmail({ email: data.email, password: data.password });
+			// El login temporal entra directo; el de operadores de Salesforce manda un link por mail.
+			if (mode === "directo") {
+				// Hay que releer la sesion recien guardada: el AuthProvider solo la valida al
+				// montarse, asi que sin esto el AuthGuard todavia ve "sin sesion" y rebota al login.
+				await checkUserSession?.();
+				router.push("/dashboard");
+				return;
+			}
 			router.push("/auth/sign-in/verify-email");
 		} catch (error) {
 			console.error("Error signing view", error);
@@ -70,6 +83,10 @@ export function JwtSignInView() {
 					Email
 				</Typography>
 				<Field.Text name="email" placeholder="example@example.com" />
+				<Typography variant="caption" color={"var(--color-primary)"} textAlign={"center"}>
+					Clave
+				</Typography>
+				<Field.Text name="password" type="password" placeholder="Clave" />
 			</Stack>
 
 			<Button

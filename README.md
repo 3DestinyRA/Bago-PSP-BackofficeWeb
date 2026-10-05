@@ -34,3 +34,28 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Login temporal (octubre 2026)
+
+Mientras el operador no exista en Salesforce, el backoffice acepta un **login único
+hardcodeado** para que Bagó pueda probar: el mail y la clave que figuran en la card de
+Trello "Revisar login Backoffice operadores".
+
+- Lo valida el servidor en `src/app/api/auth/demo-login/route.ts`, así la clave **no
+  viaja en el bundle** del navegador. Se puede sobrescribir con `BACKOFFICE_DEMO_EMAIL`
+  y `BACKOFFICE_DEMO_PASSWORD`.
+- Con ese usuario se entra directo (sin link por mail) y **no se consulta Salesforce**,
+  así que el dashboard queda en cero: no hay operador real del cual traer pacientes.
+- El login real (operador de Salesforce + link por mail) sigue funcionando para
+  cualquier otro mail.
+
+**Para sacarlo** cuando se integre Salesforce: borrar la ruta `api/auth/demo-login`, el
+bloque 1 de `signInWithEmail` (`src/auth/context/jwt/action.ts`), el chequeo `demo` del
+`AuthProvider` y el campo de clave del formulario.
+
+### Configuración pendiente
+
+El `.env` del repo define las variables de Salesforce con los nombres de la app mobile
+(`EXPO_PUBLIC_*`) y el código lee `NEXT_PUBLIC_*`, así que hoy **no autentica contra
+Salesforce**. Esas credenciales, además, apuntan a producción y viajan al navegador por
+tener prefijo `NEXT_PUBLIC`: conviene moverlas al servidor al integrar.

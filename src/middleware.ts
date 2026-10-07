@@ -1,43 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const allowedOrigins = ["*"];
+const SESSION_COOKIE = "bo_session";
 
-const corsOptions = {
-	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-	"Access-Control-Allow-Headers": "Content-Type, Authorization",
-};
-
+/**
+ * Primer filtro del dashboard: sin cookie de sesión, ni se carga la pantalla.
+ *
+ * Acá no se verifica la firma (el middleware corre en el edge y el secreto vive en el
+ * servidor): la validación real la hace `/api/auth/me`, que además revalida contra
+ * Salesforce. Esto evita servir el dashboard a quien no inició sesión.
+ *
+ * Antes este archivo solo agregaba CORS con `Access-Control-Allow-Origin: *` a todas
+ * las rutas de API, lo que permitía que cualquier sitio las llamara desde el navegador
+ * de un usuario logueado. Se quitó: las rutas se consumen desde el mismo origen.
+ */
 export function middleware(request: NextRequest) {
-	// Check the origin from the request
-	const origin = request.headers.get("origin") ?? "";
-	const isAllowedOrigin = allowedOrigins.includes(origin);
+	const hasSession = Boolean(request.cookies.get(SESSION_COOKIE)?.value);
 
-	// Handle preflighted requests
-	const isPreflight = request.method === "OPTIONS";
-
-	if (isPreflight) {
-		const preflightHeaders = {
-			...(isAllowedOrigin && { "Access-Control-Allow-Origin": origin }),
-			...corsOptions,
-		};
-		return NextResponse.json({}, { headers: preflightHeaders });
+	if (!hasSession) {
+		const url = new URL("/auth/sign-in", request.nextUrl.origin);
+		url.searchParams.set("returnTo", request.nextUrl.pathname);
+		return NextResponse.redirect(url);
 	}
 
-	// Handle simple requests
-	const response = NextResponse.next();
-
-	if (isAllowedOrigin) {
-		response.headers.set("Access-Control-Allow-Origin", origin);
-	}
-
-	Object.entries(corsOptions).forEach(([key, value]) => {
-		response.headers.set(key, value);
-	});
-
-	return response;
+	return NextResponse.next();
 }
 
 export const config = {
-	matcher: "/api/:path*",
+	matcher: "/dashboard/:path*",
 };

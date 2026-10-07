@@ -1,25 +1,14 @@
 "use client";
 
 import { LogoIcon } from "@/assets/icons/logo";
-import { setSession } from "@/auth/context/jwt";
 import { Stack, Typography } from "@mui/material";
-import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React from "react";
 
-type Props = {
-	token?: string;
-};
-
-export const VerifyEmailView = ({ token }: Props) => {
-	const router = useRouter();
-	useEffect(() => {
-		if (token) {
-			setSession(token);
-			router.replace("/dashboard");
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [token]);
-
+/**
+ * Pantalla posterior a pedir el ingreso. El link del mail NO entra por acá: va a
+ * `/api/auth/verify`, que valida el token en el servidor y crea la sesión.
+ */
+export const VerifyEmailView = () => {
 	return (
 		<>
 			<Stack spacing={"47px"} sx={{ mb: 5 }}>
@@ -30,12 +19,12 @@ export const VerifyEmailView = ({ token }: Props) => {
 					Bienvenido a la gestión de PROCAVI
 				</Typography>
 			</Stack>
-			<Stack sx={{ width: "100%", alignItems: "center" }}>
+			<Stack sx={{ width: "100%", alignItems: "center" }} spacing={1}>
 				<Typography variant="subtitle2" color={"var(--color-black)"}>
-					Verificá tu correo electronico
+					Revisá tu correo electrónico
 				</Typography>
-				<Typography variant="body1" color={"var(--color-black)"}>
-					Te hemos enviado un correo con un enlace de verificación
+				<Typography variant="body1" color={"var(--color-black)"} textAlign={"center"}>
+					Si el mail corresponde a un operador del programa, te enviamos un enlace para entrar. Vence en 15 minutos.
 				</Typography>
 			</Stack>
 		</>

@@ -2,12 +2,9 @@
 
 import { useMemo, useEffect, useCallback } from "react";
 
-import { STORAGE_KEY } from "./constant";
 import { AuthContext } from "../auth-context";
-import { setSession, isValidToken, getDecodedToken } from "./utils";
 import { AuthState } from "@/auth/types";
 import { useSetState } from "@/hooks/use-set-state";
-import { getOperatorByEmail } from "@/actions/patient-service";
 
 // ----------------------------------------------------------------------
 
@@ -21,50 +18,24 @@ export function AuthProvider({ children }: Readonly<Props>) {
 		loading: true,
 	});
 
+	/**
+	 * La sesión vive en una cookie httpOnly: el navegador no puede leerla ni falsificarla.
+	 * El servidor la verifica y devuelve al operador con sus pacientes, revalidando
+	 * contra Salesforce en cada carga.
+	 */
 	const checkUserSession = useCallback(async () => {
 		try {
-			const accessToken = sessionStorage.getItem(STORAGE_KEY);
+			const response = await fetch("/api/auth/me", { cache: "no-store" });
 
-			if (accessToken && isValidToken(accessToken)) {
-				setSession(accessToken);
-
-				const decodedTokenResponse = getDecodedToken(accessToken);
-
-				// Login temporal hardcodeado: ese mail no existe como operador en
-				// Salesforce, así que armamos el usuario acá en vez de ir a buscarlo
-				// (si no, la sesión se cerraría sola). Ver /api/auth/demo-login.
-				if (decodedTokenResponse?.demo) {
-					setState({
-						user: {
-							name: "Operador",
-							lastname: "",
-							identificationNumber: "",
-							message: "",
-							patients: [],
-						},
-						loading: false,
-					});
-					return;
-				}
-
-				const userData = await getOperatorByEmail(decodedTokenResponse?.email as string);
-
-				if (!userData || userData?.message !== "") {
-					setState({ user: null, loading: false });
-					sessionStorage.removeItem(STORAGE_KEY);
-				} else {
-					setState({
-						user: {
-							...userData,
-						},
-						loading: false,
-					});
-				}
-			} else {
+			if (!response.ok) {
 				setState({ user: null, loading: false });
+				return;
 			}
+
+			const { user } = await response.json();
+			setState({ user: user ?? null, loading: false });
 		} catch (error) {
-			console.error(error);
+			console.error("Error al recuperar la sesión:", error);
 			setState({ user: null, loading: false });
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,11 +54,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
 
 	const memoizedValue = useMemo(
 		() => ({
-			user: state.user
-				? {
-						...state.user,
-				  }
-				: null,
+			user: state.user ? { ...state.user } : null,
 			checkUserSession,
 			loading: status === "loading",
 			authenticated: status === "authenticated",

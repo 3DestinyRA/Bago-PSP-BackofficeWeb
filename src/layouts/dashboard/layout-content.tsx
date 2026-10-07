@@ -2,7 +2,7 @@ import { Box, Stack, Typography } from "@mui/material";
 import React from "react";
 
 type Props = {
-	breadcrumbText?: string;
+	breadcrumbText?: React.ReactNode;
 	title: string;
 	children: React.ReactNode;
 };

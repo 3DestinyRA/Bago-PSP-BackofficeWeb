@@ -1,0 +1,31 @@
+# Levanta el backoffice en local con Docker:
+#
+#   cp .env.template .env      # completar los valores (ver README → Docker)
+#   docker compose up --build
+#
+# Las credenciales se leen de .env en tiempo de ejecucion; no quedan en la imagen.
+name: bago-backoffice
+
+services:
+  backoffice:
+    image: bago-backoffice:local
+    build:
+      context: .
+      args:
+        # No son secretas: Next las incrusta en el bundle del navegador al compilar.
+        NEXT_PUBLIC_ASSETS_URL: ${NEXT_PUBLIC_ASSETS_URL:-}
+        NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH:-}
+    env_file: .env
+    environment:
+      # Tiene que ser la URL EXACTA con la que se abre el sitio en el navegador: la
+      # cookie de sesion se guarda contra ese host y, si el link del mail redirige a
+      # otro, el ingreso queda en loop. Por defecto sigue al puerto publicado.
+      AUTH_BASE_URL: ${AUTH_BASE_URL:-http://localhost:${APP_PORT:-3000}}
+    ports:
+      # Solo loopback: el backoffice muestra datos de pacientes. Para exponerlo en la
+      # red, cambiar a "${APP_PORT:-3000}:3000" y poner HTTPS adelante.
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL

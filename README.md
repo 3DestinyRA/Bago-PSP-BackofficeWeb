@@ -35,6 +35,69 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+## Docker
+
+El proyecto se puede levantar en un contenedor. La imagen es de producción (Next.js en
+modo `standalone`, unos 260 MB, corre como usuario no root) y **no lleva credenciales**:
+se leen de variables de entorno al arrancar.
+
+### Levantarlo en local
+
+Requiere Docker con Compose v2.
+
+```bash
+cp .env.template .env      # completar los valores (ver abajo)
+docker compose up --build
+```
+
+Abrir <http://localhost:3000>. El contenedor expone `/api/health` y Docker lo marca
+`healthy` cuando responde.
+
+Hay que completar en `.env` (el detalle está comentado en `.env.template`): `AUTH_SECRET`
+(generar con `openssl rand -base64 48`), las `SALESFORCE_*`, `EMAIL_SERVICE_API_URL` y
+`EMAIL_SERVICE_API_KEY`.
+
+### Cómo se ingresa
+
+El ingreso es por mail, sin contraseña: el operador escribe su mail, le llega un enlace y
+al abrirlo queda con la sesión iniciada (el enlace dura 15 minutos; la sesión, 8 horas).
+Solo recibe el enlace un mail que exista como operador en Salesforce.
+
+- **Con la imagen el mail sale de verdad** hacia el operador. `AUTH_DEBUG_RETURN_LINK` solo
+  funciona cuando `NODE_ENV` no es `production`, o sea con `yarn dev` y no dentro de Docker.
+- **`AUTH_BASE_URL` tiene que ser la URL exacta con la que se abre el sitio.** La cookie de
+  sesión se guarda contra ese host: si el enlace del mail apunta a otro, el ingreso queda en
+  loop. Con Compose, si no se define, sigue al puerto publicado.
+- La cookie es `Secure`: sobre `http://localhost` anda en Chrome y Firefox, **no en Safari**.
+  En cualquier otro host hace falta HTTPS.
+
+### Otro puerto
+
+```bash
+APP_PORT=3100 AUTH_BASE_URL=http://localhost:3100 docker compose up
+```
+
+Si `AUTH_BASE_URL` figura en `.env`, hay que cambiarla ahí también.
+
+### Solo la imagen, sin Compose
+
+```bash
+docker build -t bago-backoffice .
+docker run --rm -p 3000:3000 --env-file .env bago-backoffice
+```
+
+`docker run --env-file` no interpreta comillas: en `.env` los valores van sin comillas.
+Si se compila desde una Mac con Apple Silicon para correr en un servidor `amd64`, agregar
+`--platform linux/amd64` al `docker build`.
+
+### Seguridad
+
+- Los `.env` quedan fuera de la imagen (`.dockerignore`) y ninguna credencial aparece dentro
+  de ella ni en el bundle que baja el navegador.
+- Compose publica el puerto solo en `127.0.0.1`, porque el backoffice muestra datos de
+  pacientes. Para exponerlo en una red hay que poner HTTPS adelante.
+- El contenedor corre sin privilegios extra (`no-new-privileges`, sin capabilities).
+
 ## Login temporal (octubre 2026)
 
 Mientras el operador no exista en Salesforce, el backoffice acepta un **login único

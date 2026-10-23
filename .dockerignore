@@ -1,0 +1,36 @@
+# Todo lo que no debe entrar al contexto de build.
+#
+# SECRETOS: el repo es publico y los .env tienen credenciales de produccion
+# (Salesforce, mail, AUTH_SECRET). El .env.local ademas trae un token de Vercel.
+# Nunca van en la imagen: se pasan por variables de entorno al correr el contenedor.
+.env
+.env.*
+
+# Dependencias y salidas de build (se regeneran dentro de la imagen)
+node_modules
+.next
+out
+build
+coverage
+next-env.d.ts
+*.tsbuildinfo
+
+# Control de versiones y herramientas locales
+.git
+.gitignore
+.vercel
+.claude
+.notas
+.DS_Store
+*.pem
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos del propio Docker y documentacion
+Dockerfile
+docker-compose*.yml
+.dockerignore
+README.md

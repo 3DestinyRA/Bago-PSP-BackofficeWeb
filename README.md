@@ -79,6 +79,41 @@ APP_PORT=3100 AUTH_BASE_URL=http://localhost:3100 docker compose up
 
 Si `AUTH_BASE_URL` figura en `.env`, hay que cambiarla ahí también.
 
+### Servirlo bajo un prefijo de ruta
+
+Si el sitio se publica bajo un prefijo (por ejemplo `https://sitio.ejemplo.com/backoffice-psp`,
+con un nginx adelante), la imagen se compila con ese prefijo, porque Next lo incrusta en las
+rutas y en los assets:
+
+```bash
+# en .env
+BASE_PATH=/backoffice-psp
+AUTH_BASE_URL=https://sitio.ejemplo.com/backoffice-psp
+
+docker compose up --build
+```
+
+- **`BASE_PATH` se fija al compilar**: si cambia, hay que reconstruir la imagen. Va con barra
+  inicial y sin barra final. Sin definir, la app va en la raíz.
+- **`AUTH_BASE_URL` lleva el mismo prefijo.** Si se carga solo con el origen, la app se lo agrega.
+- La app responde **solo bajo el prefijo**: `/backoffice-psp/api/health`, no `/api/health`. El
+  healthcheck de la imagen ya lo contempla.
+- La cookie de sesión queda acotada al prefijo (`Path=/backoffice-psp`), así que otras apps del
+  mismo host no la reciben.
+- El nginx tiene que reenviar el prefijo **sin sacarlo**:
+
+```nginx
+location /backoffice-psp/ {
+    proxy_pass http://127.0.0.1:3000;    # sin barra ni ruta al final: conserva el prefijo
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+Con `AUTH_BASE_URL` definida el ingreso no depende de los headers del proxy; sin ella, la URL se
+arma con `Host` y `X-Forwarded-Proto`, y un nginx que no los reenvía produce enlaces a un host
+interno (`https://0.0.0.0:8080/...`).
+
 ### Solo la imagen, sin Compose
 
 ```bash
@@ -87,8 +122,9 @@ docker run --rm -p 3000:3000 --env-file .env bago-backoffice
 ```
 
 `docker run --env-file` no interpreta comillas: en `.env` los valores van sin comillas.
+Para servirla bajo un prefijo, agregar `--build-arg BASE_PATH=/backoffice-psp` al `docker build`.
 Si se compila desde una Mac con Apple Silicon para correr en un servidor `amd64`, agregar
-`--platform linux/amd64` al `docker build`.
+`--platform linux/amd64`.
 
 ### Seguridad
 

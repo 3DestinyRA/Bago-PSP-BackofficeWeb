@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE, sessionCookieOptions, signSessionToken, verifyMagicLinkToken } from "@/server/auth-token";
-import { baseUrl } from "@/server/base-url";
+import { appUrl } from "@/server/base-url";
 
 export const runtime = "nodejs";
 
@@ -16,12 +16,12 @@ export async function GET(request: NextRequest) {
 	const email = verifyMagicLinkToken(token);
 
 	if (!email) {
-		const url = new URL("/auth/sign-in", baseUrl(request));
+		const url = new URL(appUrl(request, "/auth/sign-in"));
 		url.searchParams.set("error", "link-invalido");
 		return NextResponse.redirect(url);
 	}
 
-	const response = NextResponse.redirect(new URL("/dashboard", baseUrl(request)));
+	const response = NextResponse.redirect(appUrl(request, "/dashboard"));
 	response.cookies.set(SESSION_COOKIE, signSessionToken(email), sessionCookieOptions);
 	return response;
 }

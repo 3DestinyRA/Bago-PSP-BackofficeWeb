@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
+import { BASE_PATH } from "@/utils/base-path";
 import { requireEnv } from "./env";
 
 /**
@@ -50,6 +51,7 @@ export const sessionCookieOptions = {
 	httpOnly: true,
 	secure: process.env.NODE_ENV === "production",
 	sameSite: "lax" as const,
-	path: "/",
+	// Acotada al prefijo de la app: si el host se comparte con otras, no reciben la cookie.
+	path: BASE_PATH || "/",
 	maxAge: SESSION_TTL_SECONDS,
 };

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { signMagicLinkToken } from "@/server/auth-token";
 import { sendOperatorLoginLink, shouldReturnLinkInsteadOfEmail } from "@/server/mailer";
 import { findOperatorByEmail } from "@/server/salesforce";
-import { baseUrl } from "@/server/base-url";
+import { appUrl } from "@/server/base-url";
 
 export const runtime = "nodejs";
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
 		if (operator) {
 			const token = signMagicLinkToken(email);
-			const link = `${baseUrl(request)}/api/auth/verify?token=${encodeURIComponent(token)}`;
+			const link = appUrl(request, `/api/auth/verify?token=${encodeURIComponent(token)}`);
 
 			if (shouldReturnLinkInsteadOfEmail()) {
 				console.log(`[auth] link de ingreso para ${email}: ${link}`);

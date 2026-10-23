@@ -5,6 +5,7 @@ import { useMemo, useEffect, useCallback } from "react";
 import { AuthContext } from "../auth-context";
 import { AuthState } from "@/auth/types";
 import { useSetState } from "@/hooks/use-set-state";
+import { withBasePath } from "@/utils/base-path";
 
 // ----------------------------------------------------------------------
 
@@ -25,7 +26,7 @@ export function AuthProvider({ children }: Readonly<Props>) {
 	 */
 	const checkUserSession = useCallback(async () => {
 		try {
-			const response = await fetch("/api/auth/me", { cache: "no-store" });
+			const response = await fetch(withBasePath("/api/auth/me"), { cache: "no-store" });
 
 			if (!response.ok) {
 				setState({ user: null, loading: false });

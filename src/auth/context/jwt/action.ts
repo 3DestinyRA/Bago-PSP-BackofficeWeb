@@ -1,5 +1,7 @@
 "use client";
 
+import { withBasePath } from "@/utils/base-path";
+
 // ----------------------------------------------------------------------
 
 export type SignInParams = {
@@ -16,7 +18,7 @@ export type SignInParams = {
  * Responde igual exista o no el operador, para no filtrar qué mails están cargados.
  */
 export const signInWithEmail = async ({ email }: SignInParams): Promise<void> => {
-	const response = await fetch("/api/auth/request-link", {
+	const response = await fetch(withBasePath("/api/auth/request-link"), {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({ email }),
@@ -30,5 +32,5 @@ export const signInWithEmail = async ({ email }: SignInParams): Promise<void> =>
 
 /** Cierra la sesión borrando la cookie del servidor. */
 export const signOut = async (): Promise<void> => {
-	await fetch("/api/auth/logout", { method: "POST" });
+	await fetch(withBasePath("/api/auth/logout"), { method: "POST" });
 };

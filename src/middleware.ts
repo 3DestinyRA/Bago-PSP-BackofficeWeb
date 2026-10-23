@@ -17,7 +17,11 @@ export function middleware(request: NextRequest) {
 	const hasSession = Boolean(request.cookies.get(SESSION_COOKIE)?.value);
 
 	if (!hasSession) {
-		const url = new URL("/auth/sign-in", request.nextUrl.origin);
+		// `nextUrl.clone()` conserva el basePath al redirigir; armar la URL a mano con
+		// `new URL("/auth/sign-in", origin)` lo descarta y deja al usuario fuera de la app.
+		const url = request.nextUrl.clone();
+		url.pathname = "/auth/sign-in";
+		url.search = "";
 		url.searchParams.set("returnTo", request.nextUrl.pathname);
 		return NextResponse.redirect(url);
 	}

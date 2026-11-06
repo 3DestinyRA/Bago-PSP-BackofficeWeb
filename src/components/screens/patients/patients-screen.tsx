@@ -85,7 +85,7 @@ export const PatientsScreen = () => {
 			renderCell: (params) => (
 				<PatientCell
 					value={
-						params.row?.lastTreatment?.startDate ? dayjs(params.row?.lastTreatment?.startDate).format("DD/MM") : ""
+						params.row?.lastTreatment?.startDate ? dayjs(params.row?.lastTreatment?.startDate).format("DD/MM/YYYY") : ""
 					}
 				/>
 			),

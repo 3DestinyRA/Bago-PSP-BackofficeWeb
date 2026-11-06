@@ -96,7 +96,11 @@ export const PatientDetailScreen = ({ patientId }: Props) => {
 					<PatientInfoItem
 						icon={<DateIcon />}
 						title="Fecha de Inicio"
-						value={`${dayjs(dataPatient?.lastTreatment?.startDate).format("DD/MM")}`}
+						value={
+							dataPatient?.lastTreatment?.startDate
+								? dayjs(dataPatient.lastTreatment.startDate).format("DD/MM/YYYY")
+								: "-"
+						}
 					/>
 				</Grid2>
 				<Grid2
